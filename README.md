@@ -172,6 +172,20 @@ cd 3ddfa
 ```
 
 
+## Citation
+
+If you find our code useful, please cite the following paper:
+
+```
+@inproceedings{zeng_3dlandmark_2022,
+    title={3D-aware Facial Landmark Detection via Multiview Consistent Training on Synthetic Data},
+    author={Zeng, Libing and Chen, Lele and Bao, Wentao and Li, Zhong and Xu, Yi and Yuan, Junsong and Kalantari, Nima},
+    booktitle = {XXXX},
+    year={2022}
+}
+```
+
+
 ## License
 
 This work is licensed under a
