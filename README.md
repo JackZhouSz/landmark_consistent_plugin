@@ -18,7 +18,7 @@ In Submission
 
 ## Installation
 The proposed 3D-aware module can be plugged into any learning-based landmark detection algorithm. 
-We applied our modual on DAD-3DNet and 3DDFA.
+We applied our module on DAD-3DNet and 3DDFA.
 Please create the corresponding conda virtual environments refer to the following links respectively.
 [DAD-3DNet](https://github.com/PinataFarms/DAD-3DHeads), 
 [3DDFA](https://github.com/cleardusk/3DDFA)
@@ -126,7 +126,7 @@ After these steps, we obtain the following things, which make our synthetic data
 
 ### Run fine-tuning
 
-We have applied our plugin modual on DAD-3DNet and 3DDFA, so in this section we show how to use our method on them respectively.
+We have applied our plugin module on DAD-3DNet and 3DDFA, so in this section we show how to use our method on them respectively.
 
 Please download the original dataset of training DAD-3DNet and 3DDFA refer to the following links respectively.
 [DAD-3DNet](https://github.com/PinataFarms/DAD-3DHeads), 
@@ -172,7 +172,7 @@ cd 3ddfa
 ```
 
 ## Acknowledgement
-We applied our modual on DAD-3DNet and 3DDFA and used their code in our implementation.
+We applied our module on DAD-3DNet and 3DDFA and used their code in our implementation.
 Thanks for their excellent works.
 [DAD-3DNet](https://github.com/PinataFarms/DAD-3DHeads), 
 [3DDFA](https://github.com/cleardusk/3DDFA)
