@@ -98,20 +98,14 @@ def visualize(
 
 def dataset_lm2d_68_original_extraction(
         subset: str = 'train',
-        number: int = 100,
-        base_path: str = '/nfs/STG/CodecAvatar/lelechen',
-        outputs_folder: str = "outputs_dataset"
+        base_path: str = 'dataset_synthetic/example',
+        outputs_folder: str = "dataset_synthetic/example/images_lm2d"
 ) -> None:
 
     os.makedirs(outputs_folder, exist_ok=True)
-    with open('/nfs/STG/CodecAvatar/lelechen/DAD-3DHeadsDataset/val/val.json') as json_file:
-        data = json.load(json_file)[:number]
-    # ids = []
-    # for item in data:
-    #     ids.append(item["item_id"])
     ids = ['468ab0de-ed66-426d-8a59-4f537efbe8a0']
     for id in ids:
-        json_path = os.path.join(base_path, 'DAD-3DHeadsDataset', subset, 'annotations', id + '.json')
+        json_path = os.path.join(base_path, 'annotations', id + '.json')
         img_path = json_path.replace('annotations', 'images').replace('json', 'png')
         img = cv2.cvtColor(cv2.imread(img_path), cv2.COLOR_BGR2RGB)
 
