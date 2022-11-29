@@ -94,7 +94,82 @@ python demo_3ddfa+.py
 
 ## Fine-Tuning
 
+### Synthetic dataset generation
 
+Please follow this link [synthetic](https://github.com/libingzeng/EG3D_Inversion).
+
+We synthesize our dataset in the following steps:
+1. select the subset list of images in the training dataset of DAD-3DHeads.
+    - generating image list.
+2. extract 68-point facial landmark from DAD-3DHeads for each selected image.
+    - generating 68-point facial landmark for each image
+3. crop each image along with its 68-point facial landmark.
+    - generating cropped image
+    - generating the estimated camera parameter of the cropped image
+    - generating transferred 68-point facial lanmark
+4. embed cropped image into EG3D space using EG3D-PTI-Inversion
+    - generating a pivot code and adjusted weights, a NeRF, of EG3D for each cropped image
+5. sample 512 views from the inverted NeRF using designed camera positions
+    - generating view camera list
+    - RGB image of 512 views
+    - depth map of the extra view corresponding to the estimated camera parameter of the cropped image in step #3.
+        - alternative: apply an exsiting facial landmark approach on #390 view, which is a frontal view, to obtain the facial landmark, and then get the depth map of this view.
+6. calculate facial landmarks for the sampled 512 views based on the cameras, and the depth map.
+    - generating facial landmark for each sampled view.
+
+After these steps, we obtain the following things, which make our synthetic dataset:
+* the subset list of images in the training dataset of DAD-3DHeads.
+* shared camera list for sampling 512 views.
+* 512 multiview images for each cropped selected image.
+* facial landmark for each multivew image.
+
+
+### Run fine-tuning
+
+We have applied our plugin modual on DAD-3DNet and 3DDFA, so in this section we show how to use our method on them respectively.
+
+Please download the original dataset of training DAD-3DNet and 3DDFA refer to the following links respectively.
+[DAD-3DNet](https://github.com/PinataFarms/DAD-3DHeads), 
+[3DDFA](https://github.com/cleardusk/3DDFA)
+
+#### DAD-3DNet fine-tuning
+Due to the resuming trainable checkpoint of DAD-3DNet is not public available, we first retrain DAD-3DNet in the same way as they explained in the paper, and the do our fine-tuning.
+
+```bash
+cd dad3d
+
+# retrain DAD-3DNet
+./shell/run_train_68.sh
+
+```
+
+Fine-tuning dataset setting is in the file:
+```bash
+# line #3 - #5
+landmark_consistent_plugin/dad3d/model_training/config/dataset/dad_3d_heads_consistent_68.yaml
+```
+
+Please run the following code to do fine-tuning.
+```bash
+# fine-tuning DAD-3DNet
+./shell/run_train_consistent_68_all.sh
+```
+
+#### 3DDFA fine-tuning
+
+Fine-tuning dataset setting is in the file:
+```bash
+# line #388 - #402
+landmark_consistent_plugin/3ddfa/training/train_booster.py
+```
+
+Please run the following code to do fine-tuning.
+```bash
+cd 3ddfa
+
+# fine-tuning 3DDFA
+./training/train_wpdc_booster.sh
+```
 
 
 ## License
