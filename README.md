@@ -35,6 +35,19 @@ middle row.
 ### Run demo:
 
 #### DAD-3DNet
+Please download checkpoints and dependent files following 
+[checkpoints](https://drive.google.com/drive/folders/1JmdZwcweivDXx5_Q37TfsHQq9JogWmzo?usp=share_link), 
+[dependence](https://drive.google.com/file/d/1uTuT8J7PN6YqW8XxXcCAp4Dy2pkO6Ngs/view?usp=share_link) respectively, and put them in the following paths:
+```bash
+# checkpoints path
+landmark_consistent_plugin/dad3d/checkpoints
+
+# dependent files path
+landmark_consistent_plugin/dad3d/model_training/model/static
+```
+
+Then, run the demos using the following commands.
+
 ```bash
 cd dad3d
 # input images are in ./images folder
@@ -48,6 +61,25 @@ cd dad3d
 ```
 
 #### 3DDFA
+Please download checkpoints and dependent files following 
+[checkpoints](https://drive.google.com/file/d/1l4Mh6F19ZSYHWuSNrMB-TXRqA2RzqlOu/view?usp=share_link), 
+[dependence1](https://drive.google.com/file/d/1FI7qdbAkr5fauSazP5hNS4XUXvi7xVoD/view?usp=share_link) and 
+[dependence2](https://drive.google.com/file/d/1l4Mh6F19ZSYHWuSNrMB-TXRqA2RzqlOu/view?usp=share_link) respectively, and put them in the following paths:
+
+```bash
+# checkpoints path
+landmark_consistent_plugin/3ddfa/training/snapshot
+
+# dependent files path
+landmark_consistent_plugin/3ddfa/shape_predictor
+landmark_consistent_plugin/3ddfa/train.configs
+landmark_consistent_plugin/3ddfa/test.configs
+landmark_consistent_plugin/3ddfa/models
+
+```
+
+Then, run the demos using the following commands.
+
 ```bash
 cd 3ddfa
 # input images are in ./images folder
