@@ -1,0 +1,62 @@
+# @package _global_
+dataset_root: /nfs/STG/CodecAvatar/lelechen
+dataset_ann_root: /nfs/STG/CodecAvatar/lelechen/DAD-3DHeadsDataset
+dataset_multiview_root: /nfs/STG/CodecAvatar/lelechen/DAD-3DHeadsDataset/train/PTI/multiview
+dataset_multiview_lm2d_root: /nfs/STG/CodecAvatar/lelechen/libingzeng/DAD-3DHeadsDataset/train/PTI/lm2d_68_multiview_006167/
+output_root: /nfs/STG/CodecAvatar/lelechen/libingzeng/Consistent_Facial_Landmarks/outputs
+
+data_loading_once: False # load all samples at the init function of dataset or not
+single_view_gt: False # True: calculate lm2d loss on the single view with ground truth 2d landmarks instead of on multiple views 
+
+train:
+    dataset_root: ${dataset_root}
+    dataset_multiview_root: ${dataset_multiview_root}
+    dataset_multiview_lm2d_root: ${dataset_multiview_lm2d_root}
+    ann_path: ${dataset_ann_root}/train/annotations
+    dad3d_data_json: ${dataset_ann_root}/train/train.json
+    dad3d_data_samples_num: 3
+    loader_name: train
+    sample_list: ${dataset_multiview_lm2d_root}/train_list.npy
+    sample_num: 4200
+    data_loading_once: ${data_loading_once}
+    single_view_gt: ${single_view_gt}
+    img_size: 256
+    stride: 4
+    num_classes: 68 # lbz
+    keypoints:
+      2d_subset_name: multipie_keypoints #keypoints_191 #keypoints_445 lbz
+      2d_subset_path: ./model_training/model/static/face_keypoints/${train.keypoints.2d_subset_name}
+    flame_indices:
+      folder: ./model_training/model/static/flame_indices
+      files:
+        head: head.npy
+        face_w_ears: face_w_ears.npy
+        face: face.npy
+    coder:
+      _target_: model_training.data.coder.HeatmapCoder
+    transform:
+      normalize: imagenet
+      resize_mode: longest_max_size
+    
+val:
+    dataset_root: ${dataset_root}
+    dataset_multiview_root: ${dataset_multiview_root}
+    dataset_multiview_lm2d_root: ${dataset_multiview_lm2d_root}
+    ann_path: ${dataset_ann_root}/train/annotations
+    dad3d_data_json: ${dataset_ann_root}/train/train.json
+    dad3d_data_samples_num: 3
+    loader_name: val
+    sample_list: ${dataset_multiview_lm2d_root}/val_list.npy
+    sample_num: 500
+    data_loading_once: ${data_loading_once}
+    single_view_gt: ${single_view_gt}
+    img_size: ${train.img_size}
+    stride: ${train.stride}
+    num_classes: ${train.num_classes}
+    keypoints: ${train.keypoints}
+    flame_indices: ${train.flame_indices}
+    coder: ${train.coder}
+    transform:
+      normalize: imagenet
+      resize_mode: longest_max_size
+

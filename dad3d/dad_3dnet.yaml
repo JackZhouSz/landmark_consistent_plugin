@@ -1,0 +1,27 @@
+model_path: .dad_checkpoints/dad_3dheads.trcd
+# model_path: /nfs/STG/CodecAvatar/lelechen/libingzeng/Consistent_Facial_Landmarks/DAD-3DHeads/0/checkpoints/epoch_89-step_26549.trcd
+
+# model_path: /nfs/home/uss00054/projects/Consistent_Facial_Landmarks/logs/0/checkpoints/dad3d_retrain_68/epoch_99-step_315299-vlast.trcd
+
+# model_path: /nfs/home/uss00054/projects/Consistent_Facial_Landmarks/logs/0/checkpoints/outputs_trains4200_vals500_single_view_gt_v3d10_projrefgt/epoch_99-step_26199-vlast.trcd
+# model_path: /nfs/home/uss00054/projects/Consistent_Facial_Landmarks/logs/0/checkpoints/outputs_trains4200_vals500_single_view_gt_v3d10_projrefgt_all_img3/epoch_44-step_11789-vlast.trcd
+# model_path: /nfs/home/uss00054/projects/Consistent_Facial_Landmarks/logs/0/checkpoints/outputs_trains4200_vals500_single_view_gt_v3d10_projrefgt_all_img22/epoch_6-step_1833-vlast.trcd
+# model_path: /nfs/home/uss00054/projects/Consistent_Facial_Landmarks/logs/0/checkpoints/outputs_trains4200_vals500_single_view_gt_all_image3_lrnew0.0001_dad3d1.0/epoch_122-step_32225-vlast.trcd
+# model_path: /nfs/home/uss00054/projects/Consistent_Facial_Landmarks/logs/0/checkpoints/outputs_trains4200_vals500_single_view_gt_all_image3_lrnew0.0001_dad3d10.0/epoch_38-step_10217-vlast.trcd
+# model_path: /nfs/home/uss00054/projects/Consistent_Facial_Landmarks/logs/0/checkpoints/outputs_trains4200_vals500_single_view_gt_all_image3_lrnew0.0001_dad3d5.0/epoch_116-step_30653-vlast.trcd
+
+# model_path: /nfs/home/uss00054/projects/Consistent_Facial_Landmarks/logs/0/checkpoints/outputs_trains4200_vals500_single_view_gt_all_image3_lrnew0.0001_ourweight0.1/epoch_47-step_12575-vlast.trcd
+# model_path: /nfs/home/uss00054/projects/Consistent_Facial_Landmarks/logs/0/checkpoints/outputs_trains4200_vals500_single_view_gt_all_image3_lrnew0.0001_ourweight0.1_ourproj0.0_ourmesh0.0/epoch_31-step_11199-vlast.trcd
+# model_path: /nfs/home/uss00054/projects/Consistent_Facial_Landmarks/logs/0/checkpoints/outputs_trains4200_vals500_single_view_gt_all_image3_lrnew0.0001_ourweight1.0/epoch_109-step_28819-vlast.trcd
+# model_path: /nfs/home/uss00054/projects/Consistent_Facial_Landmarks/logs/0/checkpoints/outputs_trains4200_vals500_single_view_gt_all_image3_lrnew0.0001_ourweight1.0_ourproj0.0_ourmesh0.0/epoch_38-step_10217-vlast.trcd
+# model_path: /nfs/home/uss00054/projects/Consistent_Facial_Landmarks/logs/0/checkpoints/outputs_trains4200_vals500_single_view_gt_all_image3_lrnew0.0001_ourweight10.0/epoch_74-step_26249-vlast.trcd
+img_size: 256
+constants:
+  shape: 300
+  expression: 100
+  jaw: 3
+  rotation: 6
+  eyeballs: 0
+  neck: 0
+  translation: 3
+  scale: 1

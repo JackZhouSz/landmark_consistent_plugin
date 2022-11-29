@@ -1,0 +1,12 @@
+_target_: model_training.model.flame_regression_consistent.FlameRegression
+model_config:
+  backbone: resnet50
+  pretrained: True
+  num_filters: 256
+  num_channels: 3
+  num_classes: ${train.num_classes}
+  img_size: ${train.img_size}
+  conv_block: regular
+  limit_value: 3
+  load_weights: True
+  ckpt_path: checkpoints/dad3d/epoch_99-step_315299-vlast.ckpt # general trained

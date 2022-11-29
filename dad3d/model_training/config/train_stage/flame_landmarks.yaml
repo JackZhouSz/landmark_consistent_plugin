@@ -1,0 +1,23 @@
+# @package _global_
+phase: train
+task: 3D Head Mesh
+
+sampler: none
+drop_last: True
+min_epochs: 100
+max_epochs: 500
+batch_size: 4
+num_workers: 16
+save_top_k: 3
+images_log_freq: 100
+# val_check_interval: 2 # `val_check_interval` (10) must be less than or equal to the number of the training batches (2)
+# check_val_every_n_epoch: 1
+
+parallel: False
+
+best_worst_miner:
+  max_images: 16
+  metric_to_monitor: loss
+
+metric_to_monitor: valid/metrics/lm_2d_proj_loss
+metric_mode: min

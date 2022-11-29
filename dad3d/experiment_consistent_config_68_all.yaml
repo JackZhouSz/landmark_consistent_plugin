@@ -1,0 +1,212 @@
+num_workers: 64
+gpus:
+- 3
+- 4
+- 5
+- 6
+accelerator: ddp
+sync_bn: true
+precision: 32
+dataset_root: /nfs/STG/CodecAvatar/lelechen
+dataset_ann_root: /nfs/STG/CodecAvatar/lelechen/DAD-3DHeadsDataset
+dataset_multiview_root: /nfs/STG/CodecAvatar/lelechen/DAD-3DHeadsDataset/train/PTI/multiview
+dataset_multiview_lm2d_root: /nfs/STG/CodecAvatar/lelechen/libingzeng/DAD-3DHeadsDataset/train/PTI/lm2d_68_multiview_006167/
+output_root: /nfs/STG/CodecAvatar/lelechen/libingzeng/Consistent_Facial_Landmarks/outputs
+data_loading_once: false
+single_view_gt: false
+train:
+  dataset_root: /nfs/STG/CodecAvatar/lelechen
+  dataset_multiview_root: /nfs/STG/CodecAvatar/lelechen/DAD-3DHeadsDataset/train/PTI/multiview
+  dataset_multiview_lm2d_root: /nfs/STG/CodecAvatar/lelechen/libingzeng/DAD-3DHeadsDataset/train/PTI/lm2d_68_multiview_006167/
+  ann_path: /nfs/STG/CodecAvatar/lelechen/DAD-3DHeadsDataset/train/annotations
+  dad3d_data_json: /nfs/STG/CodecAvatar/lelechen/DAD-3DHeadsDataset/train/train.json
+  dad3d_data_samples_num: 3
+  loader_name: train
+  sample_list: /nfs/STG/CodecAvatar/lelechen/libingzeng/DAD-3DHeadsDataset/train/PTI/lm2d_68_multiview_006167//train_list.npy
+  sample_num: 4200
+  data_loading_once: false
+  single_view_gt: false
+  img_size: 256
+  stride: 4
+  num_classes: 68
+  keypoints:
+    2d_subset_name: multipie_keypoints
+    2d_subset_path: ./model_training/model/static/face_keypoints/multipie_keypoints
+  flame_indices:
+    folder: ./model_training/model/static/flame_indices
+    files:
+      head: head.npy
+      face_w_ears: face_w_ears.npy
+      face: face.npy
+  coder:
+    _target_: model_training.data.coder.HeatmapCoder
+  transform:
+    normalize: imagenet
+    resize_mode: longest_max_size
+val:
+  dataset_root: /nfs/STG/CodecAvatar/lelechen
+  dataset_multiview_root: /nfs/STG/CodecAvatar/lelechen/DAD-3DHeadsDataset/train/PTI/multiview
+  dataset_multiview_lm2d_root: /nfs/STG/CodecAvatar/lelechen/libingzeng/DAD-3DHeadsDataset/train/PTI/lm2d_68_multiview_006167/
+  ann_path: /nfs/STG/CodecAvatar/lelechen/DAD-3DHeadsDataset/train/annotations
+  dad3d_data_json: /nfs/STG/CodecAvatar/lelechen/DAD-3DHeadsDataset/train/train.json
+  dad3d_data_samples_num: 3
+  loader_name: val
+  sample_list: /nfs/STG/CodecAvatar/lelechen/libingzeng/DAD-3DHeadsDataset/train/PTI/lm2d_68_multiview_006167//val_list.npy
+  sample_num: 500
+  data_loading_once: false
+  single_view_gt: false
+  img_size: 256
+  stride: 4
+  num_classes: 68
+  keypoints:
+    2d_subset_name: multipie_keypoints
+    2d_subset_path: ./model_training/model/static/face_keypoints/multipie_keypoints
+  flame_indices:
+    folder: ./model_training/model/static/flame_indices
+    files:
+      head: head.npy
+      face_w_ears: face_w_ears.npy
+      face: face.npy
+  coder:
+    _target_: model_training.data.coder.HeatmapCoder
+  transform:
+    normalize: imagenet
+    resize_mode: longest_max_size
+constants:
+  shape: 300
+  expression: 100
+  jaw: 3
+  rotation: 6
+  eyeballs: 0
+  neck: 0
+  translation: 3
+  scale: 1
+model:
+  _target_: model_training.model.flame_regression_consistent.FlameRegression
+  model_config:
+    backbone: resnet50
+    pretrained: true
+    num_filters: 256
+    num_channels: 3
+    num_classes: 68
+    img_size: 256
+    conv_block: regular
+    limit_value: 3
+    load_weights: true
+    ckpt_path: checkpoints/dad3d/epoch_99-step_315299-vlast.ckpt
+loss:
+  reduction: sum
+  weight_dad3d: 1.0
+  weight_proj: 1.0
+  weight_proj_ref_gt: 1.0
+  weight_proj_srt_gt: 1.0
+  weight_lm2d: 1.0
+  weight_mesh: 1.0
+  our_weight: 0.1
+  our_proj: 1.0
+  our_mesh: 1.0
+  weight_jaw_pseudo: 1.0
+  num_views_srt: 4
+  criterions:
+  - name: heatmap_loss
+    target_key: TARGET_LANDMARKS_HEATMAP
+    output_key: OUTPUT_LANDMARKS_HEATMAP
+    weight: 1.0
+    loss:
+      _target_: model_training.losses.IoULoss
+  - name: vertices3d_loss
+    target_key: TARGET_3D_MODEL_VERTICES
+    output_key: OUTPUT_3DMM_PARAMS
+    weight: 50.0
+    loss:
+      _target_: model_training.losses.Vertices3DLoss
+      criterion: l2
+      batch_size: 4
+      consts:
+        shape: 300
+        expression: 100
+        jaw: 3
+        rotation: 6
+        eyeballs: 0
+        neck: 0
+        translation: 3
+        scale: 1
+      weights_and_indices:
+        flame_indices:
+          folder: ./model_training/model/static/flame_indices
+          files:
+            head: head.npy
+            face_w_ears: face_w_ears.npy
+            face: face.npy
+        weights:
+          head: 0.5
+          face_w_ears: 0.75
+          face: 1.0
+  - name: reprojection_loss
+    target_key: TARGET_2D_FULL_LANDMARKS
+    output_key: OUTPUT_3DMM_PARAMS
+    weight: 0.05
+    loss:
+      _target_: model_training.losses.ReprojectionLoss
+      criterion: smooth_l1
+      batch_size: 4
+      consts:
+        shape: 300
+        expression: 100
+        jaw: 3
+        rotation: 6
+        eyeballs: 0
+        neck: 0
+        translation: 3
+        scale: 1
+      img_size: 256
+      weights_and_indices:
+        flame_indices:
+          folder: ./model_training/model/static/flame_indices
+          files:
+            head: head.npy
+            face_w_ears: face_w_ears.npy
+            face: face.npy
+        weights:
+          face: 0.5
+          face_w_ears: 0.5
+  - name: landmarks_loss
+    target_key:
+    - TARGET_2D_LANDMARKS
+    - TARGET_2D_LANDMARKS_PRESENCE
+    output_key:
+    - OUTPUT_2D_LANDMARKS
+    - TARGET_2D_LANDMARKS_PRESENCE
+    weight: 100.0
+    loss:
+      _target_: model_training.losses.LandmarksLossWVisibility
+      criterion: smooth_l1
+optimizer:
+  name: adam
+  lr: 0.0001
+scheduler:
+  name: plateau
+  mode: min
+  patience: 8
+  factor: 0.5
+  min_lr: 1.0e-07
+phase: train
+task: 3D Head Mesh
+sampler: none
+drop_last: true
+min_epochs: 100
+max_epochs: 500
+early_stopping: 10
+batch_size: 4
+save_top_k: 3
+images_log_freq: 100
+parallel: false
+best_worst_miner:
+  max_images: 16
+  metric_to_monitor: loss
+metric_to_monitor: valid/metrics/lm_2d_proj_loss
+metric_mode: min
+experiment:
+  name: academic_experiment
+  folder: /nfs/home/uss00054/projects/landmark_consistent_plugin/dad3d
+yaml_path: /nfs/home/uss00054/projects/landmark_consistent_plugin/dad3d/experiment_consistent_config_68_all.yaml

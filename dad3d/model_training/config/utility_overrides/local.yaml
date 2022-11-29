@@ -1,0 +1,5 @@
+# @package _global_
+min_epochs: 100
+max_epochs: 500
+batch_size: 4 #lbz
+num_workers: 64 #64

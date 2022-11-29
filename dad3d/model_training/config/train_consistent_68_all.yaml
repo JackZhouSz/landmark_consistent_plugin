@@ -1,0 +1,16 @@
+# @package _global_
+
+hydra:
+  run:
+    dir: ./experiments/train/${now:%Y-%m-%d-%H-%M-%S}
+defaults:
+  - backend: 4gpu
+  - dataset: dad_3d_heads_consistent_68
+  - constants: flame_constants
+  - model: resnet_regression_consistent_68
+  - loss: train_loss
+  - optimizer: adam
+  - scheduler: plateau_min
+  - train_stage: flame_landmarks_68
+  - property_overrides: flame_landmarks.academic
+  - utility_overrides: local

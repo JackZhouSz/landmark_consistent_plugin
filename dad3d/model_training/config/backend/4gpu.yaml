@@ -1,0 +1,6 @@
+# @package _global_
+num_workers: 4
+gpus: [3, 4, 5, 6]
+accelerator: ddp
+sync_bn: True
+precision: 32
