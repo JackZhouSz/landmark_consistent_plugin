@@ -171,6 +171,12 @@ cd 3ddfa
 ./training/train_wpdc_booster.sh
 ```
 
+## Acknowledgement
+We applied our modual on DAD-3DNet and 3DDFA and used their code in our implementation.
+Thanks for their excellent works.
+[DAD-3DNet](https://github.com/PinataFarms/DAD-3DHeads), 
+[3DDFA](https://github.com/cleardusk/3DDFA)
+
 
 ## Citation
 
