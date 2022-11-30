@@ -96,7 +96,7 @@ python demo_3ddfa+.py
 
 ### Synthetic dataset generation
 
-Please follow this link [synthetic](https://github.com/libingzeng/EG3D_Inversion).
+Please follow this link [synthetic](https://github.com/libingzeng/eg3d_pti_inv_synthetic_dataset).
 
 We synthesize our dataset in the following steps:
 1. select the subset list of images in the training dataset of DAD-3DHeads.
