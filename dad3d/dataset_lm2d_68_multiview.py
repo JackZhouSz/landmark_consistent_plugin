@@ -9,6 +9,7 @@ import numpy as np
 import torch
 import pickle
 import time
+import imageio
 
 from fire import Fire
 from pytorch_toolbelt.utils import read_rgb_image
@@ -196,20 +197,17 @@ def lm2d_68_multiview_projection_dad3d_dataset():
     using 2D landmarks estimated by DAD-3D for anchor frame, #390,
     and EG3D depth map of the anchor frame
     '''
-    multiview_path = '/nfs/STG/CodecAvatar/lelechen/DAD-3DHeadsDataset/train/PTI/multiview'
-    anchor_depth_path = '/nfs/STG/CodecAvatar/lelechen/DAD-3DHeadsDataset/train/PTI/depth'
-    cam_pose_path = '/nfs/STG/CodecAvatar/lelechen/DAD-3DHeadsDataset/train/PTI/cam2world_pose.pt'
-    sample_list_path = '/nfs/STG/CodecAvatar/lelechen/libingzeng/DAD-3DHeadsDataset/train/PTI/goodviews_depths_list_006167.npy'
+    multiview_path = '/nfs/home/uss00054/projects/eg3d_pti_inv_synthetic_dataset/eg3d/outputs/468ab0de-ed66-426d-8a59-4f537efbe8a0/eg3d_inversion'
+    anchor_depth_path = '/nfs/home/uss00054/projects/eg3d_pti_inv_synthetic_dataset/eg3d/outputs/468ab0de-ed66-426d-8a59-4f537efbe8a0/eg3d_inversion/view_dicts/468ab0de-ed66-426d-8a59-4f537efbe8a0/pt'
+    cam_pose_path = '/nfs/home/uss00054/projects/landmark_consistent_plugin/dad3d/dataset_synthetic/cam2world_pose.pt'
     cam_extrinsics_list = torch.load(cam_pose_path)
     cam_intrinsics = torch.tensor([[4.2647, 0, 0.5], [0, 4.2647, 0.5], [0, 0, 1]])
-    ref_lmark_path = '/nfs/STG/CodecAvatar/lelechen/DAD-3DHeadsDataset/train/lmark'
-    ref_cropped_image_path = '/nfs/STG/CodecAvatar/lelechen/DAD-3DHeadsDataset/train/cropped_img'
     
     type_of_lm2d_output: str = "68_landmarks"
     predictor = FaceMeshPredictor.dad_3dnet()
 
-    sample_list = np.load(sample_list_path)
-    lm2d_68_multiview_path = '/nfs/STG/CodecAvatar/lelechen/libingzeng/DAD-3DHeadsDataset/train/PTI/lm2d_68_multiview_{}'.format(str(len(sample_list)).zfill(6))
+    sample_list = ['468ab0de-ed66-426d-8a59-4f537efbe8a0']
+    lm2d_68_multiview_path = '/nfs/home/uss00054/projects/landmark_consistent_plugin/dad3d/dataset_synthetic/example/lm2d_68_multiview'
     output_jpg_path = os.path.join(lm2d_68_multiview_path, 'jpg')
     output_anchor_points_2d_path = os.path.join(lm2d_68_multiview_path, 'lm2d_68_multiview_2d')
     output_anchor_points_3d_path = os.path.join(lm2d_68_multiview_path, 'lm2d_68_multiview_3d')
@@ -218,9 +216,7 @@ def lm2d_68_multiview_projection_dad3d_dataset():
     os.makedirs(output_anchor_points_2d_path, exist_ok=True)
     os.makedirs(output_anchor_points_3d_path, exist_ok=True)
     sample_cnt = 0
-    # for i, im_path in enumerate(sample_list):
-    idx_st = 1477
-    for i in range(idx_st, len(sample_list)):
+    for i in range(len(sample_list)):
         im_path = sample_list[i]
         sample_cnt = i
         st_time = time.time()
@@ -228,7 +224,7 @@ def lm2d_68_multiview_projection_dad3d_dataset():
         scene_jpg_path = os.path.join(output_jpg_path, scene_name)
         scene_anchor_points_2d_path = os.path.join(output_anchor_points_2d_path, scene_name+'_lm2d_68_multiview_2d.npy')
         scene_anchor_path = os.path.join(output_anchor_points_3d_path, scene_name+'_lm2d_68_multiview_3d.npy')
-        scene_multiview_path = os.path.join(multiview_path, scene_name+'.mp4')
+        scene_multiview_path = os.path.join(multiview_path, 'interpolation_scene_'+scene_name+'.mp4')
         cap = cv2.VideoCapture(scene_multiview_path)
         amount_of_frames = cap.get(cv2.CAP_PROP_FRAME_COUNT)
         anchor_frame_num = 390
@@ -241,8 +237,8 @@ def lm2d_68_multiview_projection_dad3d_dataset():
             lm2d = predictions['points']
             # for j in range(lm2d.shape[0]): cv2.circle(anchor_frame, (int(lm2d[j][0]), int(lm2d[j][1])), 3, (0, 255, 0), -1)
 
-            depth_dir = os.path.join(anchor_depth_path, scene_name+'.npy')
-            depth = np.transpose(np.load(depth_dir), (1, 2, 0))
+            depth_dir = os.path.join(anchor_depth_path, 'view_{}_dict.pt'.format(str(anchor_frame_num).zfill(3)))
+            depth = np.transpose(torch.load(depth_dir)['image_depth'].numpy(), (1, 2, 0))
             res_scale = anchor_frame.shape[0] / depth.shape[0]
             ray_sampler = RaySampler()
             ray_origins, ray_directions = ray_sampler(cam_extrinsics_list[anchor_frame_num].cpu(), cam_intrinsics.unsqueeze(0).cpu(), depth.shape[0])
@@ -258,8 +254,11 @@ def lm2d_68_multiview_projection_dad3d_dataset():
             continue
 
         anchor_points_projs, anchor_points_projs_srt, KRTs = [], [], []
-        test_frame_list = [0, 125, 250, 375, anchor_frame_num]
+        # test_frame_list = [0, 125, 250, 375, anchor_frame_num]
+        test_frame_list = [i for i in range(int(amount_of_frames))]
         checking_interval = 100
+        os.makedirs(scene_jpg_path, exist_ok=True)
+        video_out = imageio.get_writer(scene_jpg_path+'_lm2d.mp4', mode='I', fps=60, codec='libx264')
         for f in range(int(amount_of_frames)):
             # anchor_points_proj = points_to_image(lm_3d, cam_intrinsics.cpu(), cam_extrinsics_list[f][0][:3, :].cpu(), anchor_frame.shape[0])[:, [1, 0]] # output (y, x)
             anchor_points_proj = points_to_image(lm_3d, cam_intrinsics.cpu(), cam_extrinsics_list[f][0][:3, :].cpu(), anchor_frame.shape[0]) # output (x, y) which is important and along with KRT
@@ -267,57 +266,25 @@ def lm2d_68_multiview_projection_dad3d_dataset():
             
             # check the accuracy of 2d anchor points each checking_interval scenes.
             if sample_cnt % checking_interval == 0:
-                os.makedirs(scene_jpg_path, exist_ok=True)
                 if f in test_frame_list:
                     cap.set(cv2.CAP_PROP_POS_FRAMES, f)
                     ret, frame_ = cap.read()
                     view_img = cv2.cvtColor(frame_, cv2.COLOR_BGR2RGB)
                     predictions = predictor(view_img)
-                    for l in range(anchor_points_proj.shape[0]):cv2.circle(view_img, (int(anchor_points_proj[l][0]), int(anchor_points_proj[l][1])), 2, (0, 0, 0), -1)    
-                    result = demo_funcs[type_of_lm2d_output].processor(predictions, view_img)
-                    saver = demo_funcs[type_of_lm2d_output].saver()  # instantiate the Saver
-                    output_path = os.path.join(scene_jpg_path, 'frame_{}_dad3d_lm2d.jpg'.format(str(f).zfill(3)))
-                    saver(result, output_path)
+                    for l in range(anchor_points_proj.shape[0]):cv2.circle(view_img, (int(anchor_points_proj[l][0]), int(anchor_points_proj[l][1])), 2, (255, 255, 255), -1)    
+                    # result = demo_funcs[type_of_lm2d_output].processor(predictions, view_img)
+                    # saver = demo_funcs[type_of_lm2d_output].saver()  # instantiate the Saver
+                    # output_path = os.path.join(scene_jpg_path, 'frame_{}_3d-proj_lm2d.jpg'.format(str(f).zfill(3)))
+                    # saver(view_img, output_path)
 
-                    K = cam_intrinsics.cpu() * torch.tensor([[view_img.shape[0]],[view_img.shape[1]], [1]])
-                    RT = torch.inverse(cam_extrinsics_list[f][0])[:3, :].cpu()  # Notice: KRT should use world2cam matrix not cam2world matrix
-                    KRT = torch.mm(K, RT)                
-                    KRTs.append(KRT)
-                    anchor_points_projs_srt.append(anchor_points_proj)
-
+                    video_out.append_data(view_img)
+        
+        video_out.close()
+            
+            
         # save 2d anchor points of 512 views
         anchor_points_projs = torch.stack(anchor_points_projs, dim=0)
         np.save(scene_anchor_points_2d_path, anchor_points_projs)
-        
-        # check the accuracy of 2d anchor points each checking_interval scenes.
-        if sample_cnt % checking_interval == 0:
-            # check the accuracy of anchor_point_projs by
-            # estimating 3d point using anchor_point_projs
-            # and then projecting the 3d point to each view of [0, 125, 250, 375, anchor_frame_num]
-            KRTs = torch.stack(KRTs, dim=0)
-            anchor_points_projs_srt = torch.stack(anchor_points_projs_srt, dim=0)
-            # anchor_points_gt_srt = TriangulateDLT_BatchPoints(KRTs, anchor_points_projs_srt)
-            anchor_points_gt_srt = TriangulateDLT_BatchCam(KRTs.unsqueeze(0), anchor_points_projs_srt.unsqueeze(0))
-            anchor_points_projs_srt_projs = []
-
-            for i in range(KRTs.shape[0]):
-                anchor_points_proj_srt = ProjectKRT_Batch(KRTs[i].unsqueeze(0), anchor_points_gt_srt)[0]
-                anchor_points_projs_srt_projs.append(anchor_points_proj_srt)
-            
-            for i in range(len(test_frame_list)):
-                output_lm2d_dir = os.path.join(scene_jpg_path, 'frame_{}_dad3d_lm2d.jpg'.format(str(test_frame_list[i]).zfill(3)))
-                view_img = cv2.imread(output_lm2d_dir)
-                for lp in range(anchor_points_proj_srt.shape[0]):cv2.circle(view_img, (int(anchor_points_projs_srt_projs[i][lp][0]), int(anchor_points_projs_srt_projs[i][lp][1])), 1, (255, 255, 255), -1)    
-                output_lm2d_anchor_srt_proj_dir = output_lm2d_dir.replace('.jpg', '_anchor-srt-proj-white_dad3d-green_3d-proj-black.jpg')
-                cv2.imwrite(output_lm2d_anchor_srt_proj_dir, view_img)
-        
-        # draw reference lm2d on reference image
-        ref_image_ = cv2.imread(os.path.join(ref_cropped_image_path, '{}.png'.format(scene_name)))
-        ref_image = cv2.cvtColor(ref_image_, cv2.COLOR_BGR2RGB)
-        ref_lmark = np.load(os.path.join(ref_lmark_path, '{}__cropped.npy'.format(scene_name)))
-        for rl in range(ref_lmark.shape[0]): cv2.circle(ref_image, (int(ref_lmark[rl][0]), int(ref_lmark[rl][1])), 2, (0, 0, 0), -1)    
-        ref_output_path = os.path.join(scene_jpg_path, 'ref_image_ref_lmark.jpg')
-        cv2.imwrite(ref_output_path, cv2.cvtColor(ref_image, cv2.COLOR_RGB2BGR))
         
         ed_time = time.time()
         sample_cnt += 1
