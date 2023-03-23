@@ -6,7 +6,7 @@
 
 </div>
 
-![](./dad3d/readme_imgs/teaser_v3.png)
+![](./dad3d/readme_imgs/teaser_v4.png)
 
 This is an official repository for the paper 
 ```
